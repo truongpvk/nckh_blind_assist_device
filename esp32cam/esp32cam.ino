@@ -90,17 +90,6 @@ void setup() {
 unsigned long lastMemoryLog = 0;
 const unsigned long MEMORY_LOG_INTERVAL = 30000;  // 30 seconds
 
-GPSData ReadCurrentDistance() {
-  GPSData data = { 0.0f, 0.0f, false };
-
-  String message = serialCommRead();
-  if (message.length() > 0) {
-    data = parseData(message);
-  }
-
-  return data;
-}
-
 void loop() {
   // Duy trì stream âm thanh (loa)
   // audioLoop();
@@ -180,15 +169,20 @@ void loop() {
 }
 
 float ReadCurrentDistance() {
+  String input = serialCommRead();
+  while (input.length() == 0) {
+    input = serialCommRead();
+  }
+
   char buf[64];
   input.toCharArray(buf, sizeof(buf));
   
-  // Khởi tạo giá trị mặc định (không hợp lệ)
-  float distance = 0;
+  // Khởi tạo giá trị mặc định
+  float distance = 0.0f;
 
   // Tách Header
   char* token = strtok(buf, "|");
-  if (token == NULL) return data;
+  if (token == NULL) return distance;
 
   String header = String(token);
 
@@ -201,5 +195,5 @@ float ReadCurrentDistance() {
     }
   }
 
-  return 0.0f;
+  return distance;
 }
